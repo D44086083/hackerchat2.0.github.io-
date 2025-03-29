@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社交工程攻擊分析與防禦助手</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 0;
+background-color: #f4f4f9;
+}
+header {
+background-color: #2c3e50;
+color: white;
+padding: 20px;
+text-align: center;
+position: relative;
+}
+header .about-me {
+position: absolute;
+top: 50%;
+right: 20px;
+transform: translateY(-50%);
+}
+.about-me button {
+padding: 15px 30px;
+font-size: 16px;
+background-color: #3498db;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+.about-me button:hover {
+background-color: #2980b9;
+}
+.about-section {
+display: none;
+background-color: #3498db;
+color: white;
+padding: 15px;
+border-radius: 5px;
+margin-bottom: 20px;
+text-align: center;
+}
+.about-section p {
+margin: 0;
+}
+.container {
+padding: 20px;
+max-width: 1000px;
+margin: auto;
+}
+.image-section img {
+max-width: 100%;
+height: auto;
+display: block;
+margin: 0 auto 20px;
+border: 2px solid #ccc;
+border-radius: 5px;
+}
+.question {
+margin-bottom: 20px;
+}
+.question label {
+font-weight: bold;
+display: block;
+margin-bottom: 5px;
+}
+textarea, input[type="text"] {
+width: 100%;
+padding: 10px;
+border-radius: 5px;
+border: 1px solid #ccc;
+}
+.actions {
+text-align: center;
+}
+button {
+padding: 10px 20px;
+background-color: #3498db;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+margin: 5px;
+}
+button:hover {
+background-color: #2980b9;
+}
+button:disabled {
+background-color: #cccccc;
+cursor: not-allowed;
+}
+.results {
+margin-top: 30px;
+padding: 20px;
+border: 5px solid #ccc;
+border-radius: 5px;
+background-color: white;
+}
+.results h2, .results h3 {
+margin-top: 0;
+}
+.high-risk {
+color: red;
+background-color: white;
+padding: 5px;
+border-radius: 3px;
+font-weight: bold;
+}
+.medium-risk {
+color: orange;
+background-color: white;
+padding: 5px;
+border-radius: 3px;
+font-weight: bold;
+}
+.low-risk {
+color: green;
+background-color: white;
+padding: 5px;
+border-radius: 3px;
+font-weight: bold;
+}
+.strategy-high {
+color: #d32f2f;
+font-weight: bold;
+}
+.strategy-medium {
+color: #f57c00;
+font-weight: bold;
+}
+.strategy-low {
+color: #388e3c;
+font-weight: bold;
+}
+.low-risk { color: green; font-weight: bold; }
+.medium-risk { color: orange; font-weight: bold; }
+.high-risk { color: red; font-weight: bold; }
+.attack-type {
+margin-bottom: 15px;
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 5px;
+background-color: #f9f9f9;
+}
+.attack-type h3 {
+margin-top: 0;
+color: #2c3e50;
+}
+.attack-solution {
+padding: 8px;
+margin-top: 5px;
+background-color: #e8f4fc;
+border-left: 4px solid #3498db;
+}
+.attack-types-container {
+margin-top: 20px;
+}
+.tab {
+overflow: hidden;
+border: 1px solid #ccc;
+background-color: #f1f1f1;
+border-radius: 5px 5px 0 0;
+}
+.tab button {
+background-color: inherit;
+float: left;
+border: none;
+outline: none;
+cursor: pointer;
+padding: 14px 16px;
+transition: 0.3s;
+color: #2c3e50;
+}
+.tab button:hover {
+background-color: #ddd;
+}
+.tab button.active {
+background-color: #3498db;
+color: white;
+}
+.tab button.disabled {
+color: #aaa;
+cursor: not-allowed;
+}
+.tabcontent {
+display: none;
+padding: 15px;
+border: 1px solid #ccc;
+border-top: none;
+border-radius: 0 0 5px 5px;
+background-color: white;
+}
+.keyword-analysis {
+margin-top: 20px;
+padding: 15px;
+border: 1px solid #ddd;
+border-radius: 5px;
+background-color: #f0f8ff;
+}
+.keyword-match {
+font-weight: bold;
+color: #2c3e50;
+}
+.defense-strategies {
+margin-top: 15px;
+}
+.strategy-item {
+padding: 8px;
+margin: 5px 0;
+background-color: #e8f4fc;
+border-left: 4px solid #3498db;
+}
+.progress-tracker {
+display: flex;
+justify-content: space-between;
+margin-bottom: 20px;
+padding: 10px;
+background-color: #f1f1f1;
+border-radius: 5px;
+}
+.progress-step {
+flex: 1;
+text-align: center;
+padding: 10px;
+position: relative;
+}
+.progress-step.active {
+font-weight: bold;
+color: #3498db;
+}
+.progress-step.completed {
+color: #388e3c;
+}
+.progress-step.disabled {
+color: #aaa;
+}
+.progress-step:not(:last-child)::after {
+content: "→";
+position: absolute;
+right: -10px;
+color: #aaa;
+}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>社交工程攻擊分析與防禦助手</h1>
+<p>分析您遭遇的社交工程攻擊，提供分類與防禦策略</p>
+<div class="about-me">
+<button id="aboutButton">關於本網站</button>
+</div>
+</div>
+</header>
+<div class="container">
+<div id="about-section" class="about-section">
+<p>關於本網站：本網站旨在幫助用戶識別和分析社交工程攻擊，提供針對性的防禦策略，並評估用戶的資安風險等級。</p>
+</div>
+
+<!-- 進度追蹤器 -->
+<div class="progress-tracker">
+<div id="step1" class="progress-step active">1. 攻擊分析</div>
+<div id="step2" class="progress-step disabled">2. 資安意識測驗</div>
+<div id="step3" class="progress-step disabled">3. 防禦策略</div>
+</div>
+
+<div class="tab">
+<button class="tablinks active" onclick="openTab(event, 'AttackAnalysis')">攻擊分析</button>
+<button id="riskTab" class="tablinks disabled" onclick="openTab(event, 'RiskAssessment')" disabled>資安意識測驗</button>
+<button id="typesTab" class="tablinks disabled" onclick="openTab(event, 'AttackTypes')" disabled>攻擊類型參考</button>
+</div>
+
+<div id="AttackAnalysis" class="tabcontent" style="display:block;">
+<h2>社交工程攻擊分析</h2>
+<div class="question">
+<label>請描述您遭遇的社交工程攻擊情況或輸入可疑內容：</label>
+<textarea id="attackDescription" placeholder="例如：我收到一封聲稱來自銀行的電子郵件，要求我點擊連結更新帳戶資訊..." rows="4" style="width:100%;"></textarea>
+</div>
+<button id="analyzeButton">分析攻擊</button>
+
+<div id="attackResults" class="results" style="display:none;">
+<h2>分析結果</h2>
+<div id="attackTypeResult"></div>
+<div id="keywordMatches" class="keyword-analysis"></div>
+<button id="nextToRisk" style="display:none; margin-top: 20px;">繼續進行資安意識測驗</button>
+</div>
+
+<canvas id="attackChart" width="400" height="200"></canvas>
+</div>
+
+<div id="RiskAssessment" class="tabcontent">
+<h2>資安意識自我檢測</h2>
+<p>請回答以下問題以評估您的資安風險等級：</p>
+
+<div class="question">
+<label>1. 您是否經常收到可疑電子郵件？</label>
+<select id="q1">
+<option value="never">從未</option>
+<option value="rarely">很少</option>
+<option value="sometimes">有時</option>
+<option value="often">經常</option>
+<option value="always">總是</option>
+</select>
+</div>
+
+<div class="question">
+<label>2. 您是否會點擊不明來源的連結或附件？</label>
+<select id="q2">
+<option value="never">從不</option>
+<option value="rarely">很少</option>
+<option value="sometimes">有時</option>
+<option value="often">經常</option>
+<option value="always">總是</option>
+</select>
+</div>
+
+<div class="question">
+<label>3. 您的密碼是否經常重複使用或設置過於簡單？</label>
+<select id="q3">
+<option value="never">從不</option>
+<option value="rarely">很少</option>
+<option value="sometimes">有時</option>
+<option value="often">經常</option>
+<option value="always">總是</option>
+</select>
+</div>
+
+<div class="question">
+<label>4. 您是否會在社交媒體上公開過多個人資訊？</label>
+<select id="q4">
+<option value="never">從不</option>
+<option value="rarely">很少</option>
+<option value="sometimes">有時</option>
+<option value="often">經常</option>
+<option value="always">總是</option>
+</select>
+</div>
+
+<div class="question">
+<label>5. 您是否會驗證來電者或訊息發送者的身份？</label>
+<select id="q5">
+<option value="always">總是</option>
+<option value="often">經常</option>
+<option value="sometimes">有時</option>
+<option value="rarely">很少</option>
+<option value="never">從不</option>
+</select>
+</div>
+
+<button id="assessRiskButton">評估風險</button>
+
+<div id="riskResults" class="results" style="display:none;">
+<h2>風險評估結果</h2>
+<div id="riskLevel"></div>
+<div id="riskSuggestions"></div>
+<button id="nextToTypes" style="display:none; margin-top: 20px;">查看防禦策略</button>
+</div>
+
+<canvas id="riskChart" width="400" height="200"></canvas>
+</div>
+
+<div id="AttackTypes" class="tabcontent">
+<h2>針對您的風險等級的防禦策略</h2>
+<div id="personalizedDefenses"></div>
+
+<h2 style="margin-top: 30px;">常見社交工程攻擊類型與防禦措施</h2>
+
+<div class="attack-type">
+<h3>釣魚攻擊 (Phishing)</h3>
+<p>通過偽裝成可信來源（如銀行、公司）的電子郵件或網站，誘騙受害者提供敏感資訊。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 銀行、更新、驗證、緊急、帳戶</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 核實發件人地址、不點擊可疑連結、使用雙因素認證</div>
+</div>
+
+<div class="attack-type">
+<h3>魚叉式釣魚 (Spear Phishing)</h3>
+<p>針對特定個人或組織的定制化釣魚攻擊，使用個人化資訊增加可信度。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 個人資訊、職位、內部文件、專案名稱</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 員工培訓、郵件過濾系統、敏感資訊加密</div>
+</div>
+
+<div class="attack-type">
+<h3>簡訊釣魚 (Smishing)</h3>
+<p>通過簡訊發送的釣魚攻擊，通常包含惡意連結或要求回覆敏感資訊。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 獎品、包裹、罰款、帳戶異常</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 不點擊簡訊中的連結、核實發送號碼、安裝防詐騙APP</div>
+</div>
+
+<div class="attack-type">
+<h3>語音釣魚 (Vishing)</h3>
+<p>通過電話進行的社交工程攻擊，攻擊者通常偽裝成技術支持或銀行工作人員。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 技術支持、遠端協助、帳戶凍結、安全問題</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 不提供敏感資訊、掛斷後撥打官方電話驗證、來電顯示不可全信</div>
+</div>
+
+<div class="attack-type">
+<h3>誘餌攻擊 (Baiting)</h3>
+<p>提供看似有價值的誘餌（如免費軟體、禮品）誘使用戶執行惡意操作。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 免費、限時、獨家、破解</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 只從官方來源下載軟體、警惕"太好"的優惠、保持軟體更新</div>
+</div>
+
+<div class="attack-type">
+<h3>假託攻擊 (Pretexting)</h3>
+<p>攻擊者創造一個虛假情境或身份（如IT支援、調查員）來獲取資訊。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 內部審計、系統升級、合規檢查</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 驗證來電者身份、建立正式請求流程、敏感資訊保護政策</div>
+</div>
+
+<div class="attack-type">
+<h3>水坑攻擊 (Watering Hole)</h3>
+<p>攻擊者入侵目標群體常訪問的網站，植入惡意代碼攻擊訪問者。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 行業網站、論壇、資源下載</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 保持瀏覽器更新、使用廣告攔截器、警惕網站異常行為</div>
+</div>
+
+<div class="attack-type">
+<h3>尾隨攻擊 (Tailgating)</h3>
+<p>攻擊者跟隨授權人員進入限制區域，通常通過社交技巧獲得通行。</p>
+<div class="attack-solution"><strong>關鍵詞：</strong> 忘記門禁卡、幫忙開門、送貨人員</div>
+<div class="attack-solution"><strong>防禦措施：</strong> 嚴格執行門禁政策、員工意識培訓、訪客登記系統</div>
+</div>
+</div>
+</div>
+<script>
+// 攻擊類型與關鍵詞、防禦策略的映射
+const attackTypes = {
+phishing: {
+name: "釣魚攻擊 (Phishing)",
+keywords: ["銀行", "更新", "驗證", "緊急", "帳戶", "密碼", "登入", "安全", "連結", "點擊", "電子郵件", "立即行動", "逾期", "限制", "確認"],
+description: "通過偽裝成可信來源（如銀行、公司）的電子郵件或網站，誘騙受害者提供敏感資訊。",
+defenses: [
+"核實電子郵件發件人地址 - 檢查發件人郵箱是否與官方一致",
+"不要點擊郵件中的連結 - 手動輸入網址或使用書簽訪問網站",
+"使用雙因素認證 - 即使密碼被盜，帳戶仍有保護",
+"安裝反釣魚工具 - 如瀏覽器插件或郵件過濾器",
+"檢查網站安全性 - 確認網址以https://開頭且有有效證書"
+]
+},
+spearPhishing: {
+name: "魚叉式釣魚 (Spear Phishing)",
+keywords: ["尊敬的", "親愛的", "您的帳戶", "內部文件", "專案", "合約", "發票", "薪資", "報表", "人力資源", "財務", "截止日期", "請審閱", "請批准"],
+description: "針對特定個人或組織的定制化釣魚攻擊，使用個人化資訊增加可信度。",
+defenses: [
+"員工安全意識培訓 - 特別針對高風險部門如財務、人力資源",
+"實施郵件過濾系統 - 使用AI檢測針對性釣魚郵件",
+"敏感資訊加密 - 即使被騙，資訊也無法被讀取",
+"建立正式請求流程 - 對敏感操作要求二次驗證",
+"限制資訊公開 - 減少社交媒體和網站上的可獲取資訊"
+]
+},
+smishing: {
+name: "簡訊釣魚 (Smishing)",
+keywords: ["獎品", "包裹", "罰款", "帳戶異常", "點擊連結", "回覆Y確認", "運費", "稅務", "罰單", "快遞", "中獎", "餘額不足", "信用卡", "驗證碼"],
+description: "通過簡訊發送的釣魚攻擊，通常包含惡意連結或要求回覆敏感資訊。",
+defenses: [
+"不要點擊簡訊中的連結 - 即使是看似官方的號碼",
+"核實發送號碼 - 官方號碼也可能被偽造",
+"安裝防詐騙APP - 可識別和攔截詐騙簡訊",
+"官方渠道驗證 - 通過官方網站或電話核實訊息",
+"不回復可疑簡訊 - 即使是取消訂閱的指令"
+]
+},
+vishing: {
+name: "語音釣魚 (Vishing)",
+keywords: ["技術支持", "遠端協助", "帳戶凍結", "安全問題", "Microsoft", "Windows", "銀行", "信用卡", "異常登入", "詐騙警告", "按1轉接", "客服", "驗證身份", "社會安全號碼"],
+description: "通過電話進行的社交工程攻擊，攻擊者通常偽裝成技術支持或銀行工作人員。",
+defenses: [
+"不提供敏感資訊 - 合法機構不會電話索取密碼或驗證碼",
+"掛斷後撥打官方電話 - 使用官方網站上的電話號碼回撥",
+"警惕來電顯示 - 號碼可能被偽造",
+"安裝來電識別APP - 標記已知詐騙電話",
+"建立報告機制 - 員工可報告可疑電話以供調查"
+]
+},
+baiting: {
+name: "誘餌攻擊 (Baiting)",
+keywords: ["免費", "限時", "獨家", "破解", "禮品卡", "優惠券", "折扣", "特價", "僅今天", "立即下載", "無需付費", "秘密", "內部", "VIP"],
+description: "提供看似有價值的誘餌（如免費軟體、禮品）誘使用戶執行惡意操作。",
+defenses: [
+"只從官方來源下載軟體 - 避免第三方下載站",
+"警惕\"太好\"的優惠 - 如果看起來太好，可能是騙局",
+"保持軟體更新 - 修補已知漏洞",
+"使用虛擬環境測試 - 可疑文件在沙箱中運行",
+"企業級防病毒軟體 - 可檢測和阻止惡意下載"
+]
+},
+pretexting: {
+name: "假託攻擊 (Pretexting)",
+keywords: ["內部審計", "系統升級", "合規檢查", "IT支援", "網路管理", "安全掃描", "資料備份", "服務合約", "供應商", "技術調查", "法律部門", "人力資源", "薪資調整", "權限變更"],
+description: "攻擊者創造一個虛假情境或身份（如IT支援、調查員）來獲取資訊。",
+defenses: [
+"驗證來電者身份 - 通過已知聯絡方式回撥確認",
+"建立正式請求流程 - 敏感操作需書面申請",
+"最小權限原則 - 員工只能訪問必要資訊",
+"敏感資訊保護政策 - 明確規定哪些資訊不可電話提供",
+"員工培訓 - 識別常見假託場景"
+]
+},
+wateringHole: {
+name: "水坑攻擊 (Watering Hole)",
+keywords: ["行業新聞", "技術論壇", "資源下載", "研究報告", "白皮書", "行業標準", "協會網站", "專業社群", "最新漏洞", "安全公告", "補丁更新", "工具分享"],
+description: "攻擊者入侵目標群體常訪問的網站，植入惡意代碼攻擊訪問者。",
+defenses: [
+"保持瀏覽器更新 - 修補已知漏洞",
+"使用廣告攔截器 - 減少惡意廣告風險",
+"警惕網站異常行為 - 如突然要求登入或下載",
+"企業網路過濾 - 阻止已知惡意網站",
+"端點保護 - 檢測和阻止惡意腳本執行"
+]
+},
+tailgating: {
+name: "尾隨攻擊 (Tailgating)",
+keywords: ["忘記門禁卡", "幫忙開門", "送貨人員", "訪客", "新員工", "承包商", "維修人員", "緊急情況", "主管批准", "臨時通行", "雙手拿東西", "跟隨進入"],
+description: "攻擊者跟隨授權人員進入限制區域，通常通過社交技巧獲得通行。",
+defenses: [
+"嚴格執行門禁政策 - 每人必須單獨刷卡",
+"員工意識培訓 - 不為陌生人開門",
+"訪客登記系統 - 所有訪客需登記和佩戴徽章",
+"監控系統 - 記錄所有進出活動",
+"安全人員巡邏 - 檢查可疑行為"
+]
+}
+};
+
+// 風險評估問卷的權重和建議
+const riskAssessment = {
+questions: [
+{ id: "q1", text: "收到可疑電子郵件", weight: 0.2 },
+{ id: "q2", text: "點擊不明連結", weight: 0.3 },
+{ id: "q3", text: "密碼安全性", weight: 0.25 },
+{ id: "q4", text: "公開個人資訊", weight: 0.15 },
+{ id: "q5", text: "驗證身份", weight: 0.1 }
+],
+riskLevels: {
+low: {
+threshold: 0.3,
+description: "低風險 - 您具有良好的資安意識和習慣",
+suggestions: [
+"保持當前安全實踐",
+"定期更新密碼",
+"關注最新的資安新聞和趨勢"
+]
+},
+medium: {
+threshold: 0.6,
+description: "中度風險 - 您的資安意識有待加強",
+suggestions: [
+"避免點擊不明連結",
+"使用密碼管理器",
+"啟用雙因素認證",
+"限制社交媒體上的個人資訊公開"
+]
+},
+high: {
+threshold: 1.0,
+description: "高風險 - 您極易成為社交工程攻擊的受害者",
+suggestions: [
+"立即更改所有重要帳戶密碼",
+"安裝防病毒和反釣魚軟體",
+"參加資安意識培訓",
+"啟用所有帳戶的雙因素認證",
+"審查並刪除不必要的公開個人資訊"
+]
+}
+}
+};
+
+let attackChart, riskChart;
+let riskHistory = { low: 0, medium: 0, high: 0 };
+let currentRiskLevel = "";
+let detectedAttackTypes = [];
+
+// 確保DOM完全加載後再執行JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // 關於按鈕功能
+    document.getElementById('aboutButton').addEventListener('click', function() {
+        const aboutSection = document.getElementById('about-section');
+        aboutSection.style.display = aboutSection.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // 分析攻擊按鈕
+    document.getElementById('analyzeButton').addEventListener('click', analyzeAttack);
+    
+    // 評估風險按鈕
+    document.getElementById('assessRiskButton').addEventListener('click', assessRisk);
+    
+    // 下一步按鈕
+    document.getElementById('nextToRisk').addEventListener('click', function() {
+        nextStep('RiskAssessment');
+    });
+    
+    document.getElementById('nextToTypes').addEventListener('click', function() {
+        nextStep('AttackTypes');
+    });
+
+    // 初始化頁面
+    document.getElementById('riskTab').disabled = true;
+    document.getElementById('typesTab').disabled = true;
+});
+
+// 分頁切換功能
+function openTab(evt, tabName) {
+    // 隱藏所有tabcontent
+    const tabcontents = document.getElementsByClassName('tabcontent');
+    for (let i = 0; i < tabcontents.length; i++) {
+        tabcontents[i].style.display = 'none';
+    }
+
+    // 移除所有tablinks的active類
+    const tablinks = document.getElementsByClassName('tablinks');
+    for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(' active', '');
+    }
+
+    // 顯示當前選中的tabcontent並添加active類
+    document.getElementById(tabName).style.display = 'block';
+    evt.currentTarget.className += ' active';
+}
+
+// 下一步功能
+function nextStep(nextTabId) {
+    // 更新進度追蹤器
+    if (nextTabId === 'RiskAssessment') {
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step1').classList.add('completed');
+        document.getElementById('step2').classList.remove('disabled');
+        document.getElementById('step2').classList.add('active');
+
+        // 啟用資安意識測驗標籤
+        document.getElementById('riskTab').classList.remove('disabled');
+        document.getElementById('riskTab').disabled = false;
+
+        // 切換到資安意識測驗頁面
+        document.getElementById('AttackAnalysis').style.display = 'none';
+        document.getElementById('RiskAssessment').style.display = 'block';
+
+        // 更新標籤狀態
+        document.querySelector('.tablinks.active').classList.remove('active');
+        document.getElementById('riskTab').classList.add('active');
+    }
+    else if (nextTabId === 'AttackTypes') {
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step2').classList.add('completed');
+        document.getElementById('step3').classList.remove('disabled');
+        document.getElementById('step3').classList.add('active');
+
+        // 啟用防禦策略標籤
+        document.getElementById('typesTab').classList.remove('disabled');
+        document.getElementById('typesTab').disabled = false;
+
+        // 切換到防禦策略頁面
+        document.getElementById('RiskAssessment').style.display = 'none';
+        document.getElementById('AttackTypes').style.display = 'block';
+
+        // 更新標籤狀態
+        document.querySelector('.tablinks.active').classList.remove('active');
+        document.getElementById('typesTab').classList.add('active');
+
+        // 顯示個性化防禦策略
+        showPersonalizedDefenses();
+    }
+}
+
+// 顯示個性化防禦策略
+function showPersonalizedDefenses() {
+    const personalizedDefenses = document.getElementById('personalizedDefenses');
+    let html = `<h3>針對您的風險等級 (<span class="${currentRiskLevel}-risk">${currentRiskLevel === 'low' ? '低風險' : currentRiskLevel === 'medium' ? '中度風險' : '高風險'}</span>) 的建議：</h3>`;
+
+    // 根據風險等級添加建議
+    const riskData = riskAssessment.riskLevels[currentRiskLevel];
+    html += '<ul>';
+    riskData.suggestions.forEach(suggestion => {
+        html += `<li>${suggestion}</li>`;
+    });
+    html += '</ul>';
+
+    // 根據檢測到的攻擊類型添加建議
+    if (detectedAttackTypes.length > 0) {
+        html += '<h3 style="margin-top: 20px;">針對您可能遭遇的攻擊類型的防禦措施：</h3>';
+        detectedAttackTypes.forEach(type => {
+            html += `
+            <div class="attack-type">
+                <h4>${type.name}防禦措施：</h4>
+                ${attackTypes[type.type].defenses.map(d => `<div class="attack-solution">${d}</div>`).join("")}
+            </div>
+            `;
+        });
+    }
+
+    personalizedDefenses.innerHTML = html;
+}
+
+// 分析攻擊功能
+function analyzeAttack() {
+    const description = document.getElementById("attackDescription").value.trim();
+    if (!description) {
+        alert("請輸入攻擊描述");
+        return;
+    }
+
+    // 分析關鍵詞匹配
+    detectedAttackTypes = [];
+    let keywordMatches = {};
+
+    // 檢查每種攻擊類型的關鍵詞
+    for (const [type, data] of Object.entries(attackTypes)) {
+        const foundKeywords = data.keywords.filter(keyword =>
+            description.includes(keyword)
+        );
+
+        if (foundKeywords.length > 0) {
+            detectedAttackTypes.push({
+                type: type,
+                name: data.name,
+                keywords: foundKeywords,
+                score: foundKeywords.length / data.keywords.length
+            });
+
+            keywordMatches[type] = foundKeywords;
+        }
+    }
+
+    // 排序匹配結果，按匹配分數從高到低
+    detectedAttackTypes.sort((a, b) => b.score - a.score);
+
+    // 顯示結果
+    const attackResults = document.getElementById("attackResults");
+    const attackTypeResult = document.getElementById("attackTypeResult");
+    const keywordMatchesDiv = document.getElementById("keywordMatches");
+
+    attackResults.style.display = "block";
+
+    if (detectedAttackTypes.length === 0) {
+        attackTypeResult.innerHTML = `
+        <p>未檢測到明顯的社交工程攻擊關鍵詞。</p>
+        <p>請注意，即使沒有匹配關鍵詞，仍可能存在風險。保持警惕。</p>
+        `;
+        keywordMatchesDiv.innerHTML = "";
+    } else {
+        // 顯示最可能的三種攻擊類型
+        const topTypes = detectedAttackTypes.slice(0, 3);
+        attackTypeResult.innerHTML = `
+        <h3>檢測到的攻擊類型可能性：</h3>
+        <ol>
+            ${topTypes.map(t => `
+            <li>
+                <strong>${t.name}</strong> (匹配度: ${Math.round(t.score * 100)}%)
+                <p>${attackTypes[t.type].description}</p>
+            </li>
+            `).join("")}
+        </ol>
+        `;
+
+        // 顯示關鍵詞匹配
+        keywordMatchesDiv.innerHTML = `
+        <h3>關鍵詞匹配分析</h3>
+        <p>在您的描述中發現以下關鍵詞匹配：</p>
+        <ul>
+            ${topTypes.map(t => `
+            <li>
+                <strong>${t.name}</strong>:
+                <span class="keyword-match">${t.keywords.join("、")}</span>
+            </li>
+            `).join("")}
+        </ul>
+        `;
+    }
+
+    // 顯示下一步按鈕
+    document.getElementById('nextToRisk').style.display = 'block';
+
+    // 更新圖表
+    updateAttackChart(detectedAttackTypes);
+}
+
+function updateAttackChart(matchedTypes) {
+    const ctx = document.getElementById('attackChart').getContext('2d');
+
+    // 準備圖表數據
+    const labels = matchedTypes.slice(0, 5).map(t => t.name);
+    const data = matchedTypes.slice(0, 5).map(t => t.score * 100);
+
+    // 如果有現有圖表，先銷毀
+    if (attackChart) {
+        attackChart.destroy();
+    }
+
+    attackChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '攻擊類型匹配度 (%)',
+                data: data,
+                backgroundColor: '#3498db'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: '匹配度 (%)'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 評估風險功能
+function assessRisk() {
+    let totalScore = 0;
+    let maxPossibleScore = 0;
+
+    // 計算每個問題的分數
+    riskAssessment.questions.forEach(q => {
+        const select = document.getElementById(q.id);
+        const value = select.value;
+        let score = 0;
+
+        switch(value) {
+            case "never": score = 0; break;
+            case "rarely": score = 0.25; break;
+            case "sometimes": score = 0.5; break;
+            case "often": score = 0.75; break;
+            case "always": score = 1; break;
+        }
+
+        totalScore += score * q.weight;
+        maxPossibleScore += q.weight;
+    });
+
+    // 計算風險百分比
+    const riskPercentage = totalScore / maxPossibleScore;
+    let riskDescription, suggestions;
+
+    // 確定風險等級
+    if (riskPercentage <= riskAssessment.riskLevels.low.threshold) {
+        currentRiskLevel = "low";
+        riskDescription = riskAssessment.riskLevels.low.description;
+        suggestions = riskAssessment.riskLevels.low.suggestions;
+        riskHistory.low++;
+    } else if (riskPercentage <= riskAssessment.riskLevels.medium.threshold) {
+        currentRiskLevel = "medium";
+        riskDescription = riskAssessment.riskLevels.medium.description;
+        suggestions = riskAssessment.riskLevels.medium.suggestions;
+        riskHistory.medium++;
+    } else {
+        currentRiskLevel = "high";
+        riskDescription = riskAssessment.riskLevels.high.description;
+        suggestions = riskAssessment.riskLevels.high.suggestions;
+        riskHistory.high++;
+    }
+
+    // 顯示結果
+    const riskResults = document.getElementById("riskResults");
+    const riskLevelDiv = document.getElementById("riskLevel");
+    const riskSuggestionsDiv = document.getElementById("riskSuggestions");
+
+    riskResults.style.display = "block";
+    riskLevelDiv.innerHTML = `
+    <p><strong>您的風險等級：</strong> <span class="${currentRiskLevel}-risk">${riskDescription}</span></p>
+    <p>風險評分：${Math.round(riskPercentage * 100)}/100</p>
+    `;
+
+    riskSuggestionsDiv.innerHTML = `
+    <h3>改善建議：</h3>
+    <ul>
+        ${suggestions.map(s => `<li>${s}</li>`).join("")}
+    </ul>
+    `;
+
+    // 顯示下一步按鈕
+    document.getElementById('nextToTypes').style.display = 'block';
+
+    // 更新風險圖表
+    updateRiskChart();
+}
+
+function updateRiskChart() {
+    const ctx = document.getElementById('riskChart').getContext('2d');
+
+    // 如果有現有圖表，先銷毀
+    if (riskChart) {
+        riskChart.destroy();
+    }
+
+    riskChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['低風險', '中度風險', '高風險'],
+            datasets: [{
+                data: [riskHistory.low, riskHistory.medium, riskHistory.high],
+                backgroundColor: ['#388e3c', '#f57c00', '#d32f2f']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '歷史風險評估分佈'
+                }
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>
